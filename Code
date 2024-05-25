@@ -1,0 +1,36 @@
+function removeAvatarIfNeeded(user)
+    local currencyThreshold = 100 -- Adjust this threshold as needed
+    local currentCurrency = getCurrency(user)
+
+    -- Check if the user has exceeded the currency threshold
+    if currentCurrency >= currencyThreshold then
+        local targetAvatar = getAvatar(user)
+        if targetAvatar == nil then
+            log(user.displayName .. ' does not have enough bones!')
+        else
+            log(user.displayName .. 'has lost some of his power')
+            executeCommand('!remove ' .. user.displayName .. ' avatar ' .. sprite.name)
+        end
+    else
+        log(user.displayName .. ' has enough bones!')
+        -- Check if the user's currency was previously below threshold and now meets or exceeds it
+        if currentCurrency >= currencyThreshold then
+            -- Check if the user has the specified avatar
+            local hasAvatar = getAvatar(user) -- Assuming getAvatar returns nil if the user doesn't have any avatar
+            if hasAvatar == nil then
+                log( user.displayName .. ' power grows')
+                executeCommand('!gift ' .. user.displayName .. ' avatar {avatar}') -- Replace {avatar} with the name of the avatar you want to gift
+            end
+        end
+    end
+end
+
+function handleAddCurrency(user, amount)
+    removeAvatarIfNeeded(user)
+end
+
+return function()
+    addEvent('addCurrency', 'handleAddCurrency')
+    keepAlive()
+end
+
